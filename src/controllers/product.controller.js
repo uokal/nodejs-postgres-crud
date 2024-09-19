@@ -9,23 +9,10 @@ const fs = require('fs');
 // Create a Product
 exports.createProduct = async (req, res) => {
     try {
-        const { userId, name, price, uniqueId, categoryId } = req.body;
-
-        // Check if userId is provided
-        if (!userId) {
-            return res.status(400).send({ message: "userId is required." });
-        }
-
-        const product = await Product.create({
-            userId,  // Ensure userId is included
-            name,
-            price,
-            uniqueId,
-            categoryId
-        });
-        res.status(200).send(product);
+        const products = await Product.create(req.body);
+        res.status(201).json(products);
     } catch (error) {
-        res.status(500).send({ message: error.message });
+        res.status(400).json({ error: error.message });
     }
 };
 

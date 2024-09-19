@@ -29,20 +29,15 @@ module.exports = (sequelize, DataTypes) => {
                 key: 'userId'
             }
         },
+        categoryId: {
+            type: DataTypes.UUID,
+            allowNull: false,
+            references: {
+                model: 'Categories', // Name of the table in the database
+                key: 'categoryId'
+            }
+        }
     });
-
-    Product.associate = (models) => {
-        Product.belongsTo(models.User, {
-            foreignKey: 'userId',
-            as: 'user',
-            targetKey: 'userId' // Refers to the primary key in User
-        });
-        Product.belongsTo(models.Category, {
-            foreignKey: 'categoryId',
-            as: 'category',
-            targetKey: 'categoryId' // Refers to the primary key in Category
-        });
-    };
 
     return Product;
 };

@@ -16,18 +16,5 @@ module.exports = (sequelize, DataTypes) => {
         }
     });
 
-    User.associate = (models) => {
-        User.hasMany(models.Product, {
-            foreignKey: 'userId',
-            as: 'products',
-            sourceKey: 'userId' // Refers to the primary key in User
-        });
-        User.hasMany(models.Category, {
-            foreignKey: 'userId',
-            as: 'categories',
-            sourceKey: 'userId' // Refers to the primary key in User
-        });
-    };
-
     return User;
 };
