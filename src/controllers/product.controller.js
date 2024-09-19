@@ -5,12 +5,24 @@ const { createObjectCsvWriter } = require('csv-writer');
 const XLSX = require('xlsx');
 const csv = require('csv-parser');
 const fs = require('fs');
-const path = require('path');
 
 // Create a Product
 exports.createProduct = async (req, res) => {
     try {
-        const product = await Product.create(req.body);
+        const { userId, name, price, uniqueId, categoryId } = req.body;
+
+        // Check if userId is provided
+        if (!userId) {
+            return res.status(400).send({ message: "userId is required." });
+        }
+
+        const product = await Product.create({
+            userId,  // Ensure userId is included
+            name,
+            price,
+            uniqueId,
+            categoryId
+        });
         res.status(200).send(product);
     } catch (error) {
         res.status(500).send({ message: error.message });
@@ -89,7 +101,18 @@ exports.exportProductsXLSX = async (req, res) => {
 
 // Bulk Upload Products
 exports.bulkUploadProducts = async (req, res) => {
+    const userId = req.body.userId; // Ensure userId is provided in the request body
     try {
+        if (!userId) {
+            return res.status(400).send({ message: "userId is required." });
+        }
+
+        // Validate userId
+        const user = await db.user.findByPk(userId);
+        if (!user) {
+            return res.status(400).send({ message: "Invalid userId." });
+        }
+
         const results = [];
         fs.createReadStream(req.file.path)
             .pipe(csv())
@@ -101,6 +124,7 @@ exports.bulkUploadProducts = async (req, res) => {
                         price: row.price,
                         uniqueId: row.uniqueId,
                         categoryId: category.id,
+                        userId // Assign userId from the request body
                     });
                 }
             })
