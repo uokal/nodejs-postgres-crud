@@ -1,21 +1,23 @@
 module.exports = (sequelize, DataTypes) => {
     const Category = sequelize.define('Category', {
-        categoryId: {
-            type: DataTypes.UUID,
-            defaultValue: DataTypes.UUIDV4,
-            primaryKey: true
-        },
         name: {
             type: DataTypes.STRING,
             allowNull: false
+        },
+        userId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'Users', // Make sure this is the correct model name
+                key: 'userId'
+            }
         }
     });
-
-    // Association: One Category can have many Products
     Category.associate = (models) => {
-        Category.hasMany(models.Product, {
-            foreignKey: 'categoryId',
-            as: 'products'
+        Category.belongsTo(models.User, {
+            foreignKey: 'userId',
+            targetKey: 'userId',
+            as: 'user'
         });
     };
 

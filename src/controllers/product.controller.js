@@ -1,7 +1,9 @@
 const db = require("../models");
 const Product = db.Product;
 const Category = db.Category;
+const User = db.User;
 const { createObjectCsvWriter } = require('csv-writer');
+const jwt = require("jsonwebtoken");
 const XLSX = require('xlsx');
 const csv = require('csv-parser');
 const fs = require('fs');
@@ -9,29 +11,42 @@ const fs = require('fs');
 // Create a Product
 exports.createProduct = async (req, res) => {
     try {
-        const product = await Product.create(req.body); // Ensure Product is defined
+        // Get the token from the Authorization header
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ message: "No token provided!" });
+        }
+
+        // Verify the JWT token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.userId; // Extract userId from the token
+
+        // Ensure user exists (optional, but recommended)
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found!" });
+        }
+
+        // Create the product and associate it with the user
+        const productData = {
+            ...req.body,
+            userId: userId, // Add userId to the product data
+        };
+
+        const product = await Product.create(productData); // Create the product
+
+        // Respond with the newly created product
         res.status(201).json(product);
     } catch (error) {
+        console.error("Error creating product:", error.message);
         res.status(400).json({ error: error.message });
     }
 };
 
 // Get Products with Pagination, Ordering, and Search
 exports.getProducts = async (req, res) => {
-    const { page = 1, size = 10, order = 'ASC', search = '' } = req.query;
     try {
-        const products = await Product.findAndCountAll({
-            where: {
-                [db.Sequelize.Op.or]: [
-                    { name: { [db.Sequelize.Op.iLike]: `%${search}%` } },
-                    { '$category.name$': { [db.Sequelize.Op.iLike]: `%${search}%` } }
-                ]
-            },
-            limit: size,
-            offset: (page - 1) * size,
-            order: [['price', order]],
-            include: [{ model: Category, as: "category" }]
-        });
+        const products = await Product.findAndCountAll();
         res.status(200).send(products);
     } catch (error) {
         res.status(500).send({ message: error.message });
@@ -110,7 +125,6 @@ exports.bulkUploadProducts = async (req, res) => {
                         name: row.name,
                         price: row.price,
                         uniqueId: row.uniqueId,
-                        categoryId: category.id,
                         userId // Assign userId from the request body
                     });
                 }

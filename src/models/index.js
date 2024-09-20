@@ -22,7 +22,7 @@ db.Category = require('./category.model.js')(sequelize, Sequelize.DataTypes);
 db.User.hasMany(db.Product, { foreignKey: 'userId', sourceKey: 'userId', as: 'products' });
 db.Product.belongsTo(db.User, { foreignKey: 'userId', targetKey: 'userId', as: 'user' });
 
-db.Category.hasMany(db.Product, { foreignKey: 'categoryId', as: 'products' });
-db.Product.belongsTo(db.Category, { foreignKey: 'categoryId', as: 'category' });
+db.User.hasMany(db.Category, { foreignKey: 'userId', sourceKey: 'userId', as: 'category' });
+db.Category.belongsTo(db.User, { foreignKey: 'userId', targetKey: 'userId', as: 'user' });
 
 module.exports = db;

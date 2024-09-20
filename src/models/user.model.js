@@ -1,8 +1,8 @@
 module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
         userId: {
-            type: DataTypes.UUID,
-            defaultValue: DataTypes.UUIDV4,
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
             primaryKey: true
         },
         email: {
@@ -21,6 +21,11 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'userId',
             sourceKey: 'userId',
             as: 'products',
+        });
+        User.hasMany(models.Category, {
+            foreignKey: 'userId',
+            sourceKey: 'userId',
+            as: 'categories',
         });
     };
 

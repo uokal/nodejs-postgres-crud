@@ -2,6 +2,8 @@ const bcrypt = require("bcrypt");
 const db = require('../models');
 const User = db.User;
 const Product = db.Product;
+const Category = db.Category;
+
 
 const { validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
@@ -90,11 +92,11 @@ exports.getUserDetails = async (req, res) => {
         // Verify JWT token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const userId = decoded.userId; 
-
         // Fetch user with associated products
         const user = await User.findByPk(userId, {
             include: [
-                { model: Product, as: 'products' }, // Ensure alias matches
+                { model: Product, as: 'products' },
+                { model: Category, as: 'category' }, 
             ],
             attributes: { exclude: ['password'] } // Exclude the password from the response
         });
@@ -103,18 +105,8 @@ exports.getUserDetails = async (req, res) => {
         if (!user) {
             return res.status(404).send({ message: "User not found!" });
         }
-
-        // Format the response
-        const response = {
-            userId: user.userId,  // Use userId instead of id
-            email: user.email,
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt,
-            products: user.products || [] // Ensure products is an array
-        };
-
         // Send the user details
-        res.status(200).send(response);
+        res.status(200).send(user);
     } catch (error) {
         console.error("Error fetching user details:", error);
         res.status(500).send({ message: error.message });
