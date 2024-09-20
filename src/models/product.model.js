@@ -14,30 +14,24 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         image: {
-            type: DataTypes.STRING,
-        },
-        uniqueId: {
-            type: DataTypes.UUID,
-            defaultValue: DataTypes.UUIDV4,
-            unique: true
+            type: DataTypes.STRING
         },
         userId: {
             type: DataTypes.UUID,
             allowNull: false,
             references: {
-                model: 'Users', // Name of the table in the database
+                model: 'Users', // Make sure this is the correct model name
                 key: 'userId'
-            }
-        },
-        categoryId: {
-            type: DataTypes.UUID,
-            allowNull: false,
-            references: {
-                model: 'Categories', // Name of the table in the database
-                key: 'categoryId'
             }
         }
     });
+    Product.associate = (models) => {
+        Product.belongsTo(models.User, {
+            foreignKey: 'userId',
+            targetKey: 'userId',
+            as: 'user'
+        });
+    };
 
     return Product;
 };

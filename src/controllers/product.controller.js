@@ -1,6 +1,6 @@
 const db = require("../models");
-const Product = db.product;
-const Category = db.category;
+const Product = db.Product;
+const Category = db.Category;
 const { createObjectCsvWriter } = require('csv-writer');
 const XLSX = require('xlsx');
 const csv = require('csv-parser');
@@ -9,8 +9,8 @@ const fs = require('fs');
 // Create a Product
 exports.createProduct = async (req, res) => {
     try {
-        const products = await Product.create(req.body);
-        res.status(201).json(products);
+        const product = await Product.create(req.body); // Ensure Product is defined
+        res.status(201).json(product);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

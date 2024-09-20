@@ -3,7 +3,6 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-// Create Sequelize instance
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     host: process.env.DB_HOST,
     dialect: 'postgres',
@@ -14,37 +13,16 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-// Models
-db.user = require('./user.model.js')(sequelize, Sequelize.DataTypes);
-db.category = require('./category.model.js')(sequelize, Sequelize.DataTypes);
-db.product = require('./product.model.js')(sequelize, Sequelize.DataTypes);
+// Define models with explicit table names
+db.User = require('./user.model.js')(sequelize, Sequelize.DataTypes);
+db.Product = require('./product.model.js')(sequelize, Sequelize.DataTypes);
+db.Category = require('./category.model.js')(sequelize, Sequelize.DataTypes);
 
 // Define associations
-db.user.hasMany(db.category, {
-    as: 'categories',
-    foreignKey: 'userId',
-});
-db.category.belongsTo(db.user, {
-    foreignKey: 'userId',
-    as: 'user',
-});
+db.User.hasMany(db.Product, { foreignKey: 'userId', sourceKey: 'userId', as: 'products' });
+db.Product.belongsTo(db.User, { foreignKey: 'userId', targetKey: 'userId', as: 'user' });
 
-db.user.hasMany(db.product, {
-    as: 'products',
-    foreignKey: 'userId',
-});
-db.product.belongsTo(db.user, {
-    foreignKey: 'userId',
-    as: 'user',
-});
-
-db.category.hasMany(db.product, {
-    as: 'products',
-    foreignKey: 'categoryId',
-});
-db.product.belongsTo(db.category, {
-    foreignKey: 'categoryId',
-    as: 'category',
-});
+db.Category.hasMany(db.Product, { foreignKey: 'categoryId', as: 'products' });
+db.Product.belongsTo(db.Category, { foreignKey: 'categoryId', as: 'category' });
 
 module.exports = db;

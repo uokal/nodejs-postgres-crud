@@ -1,5 +1,5 @@
 const db = require("../models");
-const Category = db.category;
+const Category = db.Category;
 
 // CRUD operations for Category
 exports.createCategory = async (req, res) => {

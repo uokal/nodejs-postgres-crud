@@ -11,7 +11,7 @@ app.use("/api/categories", require("./routes/category.routes"));
 app.use("/api/products", require("./routes/product.routes"));
 
 // Sync database and start the server
-db.sequelize.sync().then(() => {
+db.sequelize.sync({ alter: true }).then(() => {
     app.listen(5000, () => {
         console.log("Server is running on port 5000.");
     });

@@ -11,5 +11,13 @@ module.exports = (sequelize, DataTypes) => {
         }
     });
 
+    // Association: One Category can have many Products
+    Category.associate = (models) => {
+        Category.hasMany(models.Product, {
+            foreignKey: 'categoryId',
+            as: 'products'
+        });
+    };
+
     return Category;
 };
